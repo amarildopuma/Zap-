@@ -12,26 +12,25 @@ public class Vaza {
         jogadas.put(j, c);
     }
 
-    public Jogador getVencedor(Variante v) {
-        Jogador vencedor = null;
-        int maiorForca = -1;
-
-        for (Jogador j : jogadas.keySet()) {
-            Carta c = jogadas.get(j);
-            int forca = v.getForca(c);
-
-            if (forca > maiorForca) {
-                maiorForca = forca;
+    public Jogador getVencedor(Variante v, Time referencia){
+    int maior = -1;
+    for (Carta c : jogadas.values()){
+        maior = Math.max(maior, v.getForca(c));
+    }
+    Jogador vencedor = null;
+    for (Jogador j : jogadas.keySet()){
+        if (v.getForca(jogadas.get(j)) == maior){
+            if (vencedor == null){
                 vencedor = j;
-            } else if (forca == maiorForca) {
-                vencedor = null;
+            } else if (referencia.temJogador(vencedor) != referencia.temJogador(j)){
+                return null;
             }
         }
-
-        return vencedor;
     }
+    return vencedor;
+}
 
-    public boolean empatou(Variante v) {
-        return getVencedor(v) == null;
+    public boolean empatou(Variante v, Time referencia){
+    return getVencedor(v, referencia) == null;
     }
 }
