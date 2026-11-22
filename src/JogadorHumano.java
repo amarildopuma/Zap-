@@ -15,4 +15,9 @@ public class JogadorHumano extends Jogador {
     public Resposta responderAposta(NivelAposta nivelAtual) {
         return ui.lerResposta(this, nivelAtual);
     }
+
+    @Override
+    public boolean pedirAumento(NivelAposta proposto) {
+        return ui.lerPedidoAumento(this, proposto);
+    }
 }
