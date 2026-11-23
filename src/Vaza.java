@@ -1,37 +1,41 @@
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Vaza {
     private Map<Jogador, Carta> jogadas;
 
     public Vaza() {
-        this.jogadas = new HashMap<>();
+        this.jogadas = new LinkedHashMap<>();
     }
 
-    public void adicionar(Jogador j, Carta c) {
+    public void adicionar(Jogador j, Carta c) throws JogadaInvalidaException {
+        if (jogadas.containsKey(j)) {
+            throw new JogadaInvalidaException(j.getNome() + " já jogou nesta vaza.");
+        }
         jogadas.put(j, c);
     }
 
-    public Jogador getVencedor(Variante v) {
-        Jogador vencedor = null;
+    public Jogador getVencedor(Variante v, Time referencia) {
         int maiorForca = -1;
-
-        for (Jogador j : jogadas.keySet()) {
-            Carta c = jogadas.get(j);
-            int forca = v.getForca(c);
-
-            if (forca > maiorForca) {
-                maiorForca = forca;
-                vencedor = j;
-            } else if (forca == maiorForca) {
-                vencedor = null;
-            }
+        for (Carta c : jogadas.values()) {
+            maiorForca = Math.max(maiorForca, v.getForca(c));
         }
 
+        Jogador vencedor = null;
+        for (Map.Entry<Jogador, Carta> jogada : jogadas.entrySet()) {
+            if (v.getForca(jogada.getValue()) == maiorForca) {
+                Jogador atual = jogada.getKey();
+                if (vencedor == null) {
+                    vencedor = atual;
+                } else if (referencia.temJogador(vencedor) != referencia.temJogador(atual)) {
+                    return null;
+                }
+            }
+        }
         return vencedor;
     }
 
-    public boolean empatou(Variante v) {
-        return getVencedor(v) == null;
+    public boolean empatou(Variante v, Time referencia) {
+        return !jogadas.isEmpty() && getVencedor(v, referencia) == null;
     }
 }
