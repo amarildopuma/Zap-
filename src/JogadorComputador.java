@@ -1,8 +1,10 @@
 import java.util.List;
+import java.util.Random;
 
 public class JogadorComputador extends Jogador {
     private static final double LIMITE_ACEITAR = 4.5;
     private static final double LIMITE_AUMENTAR = 7.5;
+    private final Random random = new Random();
 
     private Variante variante;
 
@@ -34,7 +36,7 @@ public class JogadorComputador extends Jogador {
     @Override
     public Resposta responderAposta(NivelAposta nivelAtual) {
         if (getMao().isEmpty()) {
-            return Resposta.CORRER;
+            return Resposta.ACEITAR;
         }
 
         double mediaForca = calcularMediaForca();
@@ -49,19 +51,17 @@ public class JogadorComputador extends Jogador {
     }
 
     @Override
-    public boolean pedirAumento(NivelAposta proposto) {
-        if (getMao().isEmpty()) {
-            return false;
+    public boolean pedirAumento(NivelAposta proximoNivel) {
+        int fortes = 0; 
+        for (Carta carta : getMao()) {
+            if (variante.getForca(carta) >= 9) {
+                fortes++;
+            }
         }
-        return calcularMediaForca() >= LIMITE_AUMENTAR;
-    }
-
-    private double calcularMediaForca() {
-        List<Carta> mao = getMao();
-        int somaForcas = 0;
-        for (Carta carta : mao) {
-            somaForcas += this.variante.getForca(carta);
+        double chance = fortes >= 2 ? 0.60 : (fortes == 1 ? 0.15 : 0.03);
+        if (proximoNivel.ordinal() > NivelAposta.TRUCO.ordinal()) {
+            chance /= 2;
         }
-        return (double) somaForcas / mao.size();
+        return random.nextDouble() < chance;
     }
 }

@@ -31,6 +31,9 @@ public abstract class Jogador {
         return new ArrayList<>(this.mao);
     }
     public abstract Carta escolherCarta(Variante variante);
-    public abstract Resposta responderAposta(NivelAposta nivelAtual);
-    public abstract boolean pedirAumento(NivelAposta proposto);
+    public abstract Resposta lerRespostaAposta(NivelAposta nivelAtual);
+
+    public boolean pedirTruco(NivelAposta proximoNivel) {
+        return false;
+    }
 }

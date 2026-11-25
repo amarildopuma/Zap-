@@ -12,12 +12,12 @@ public class JogadorHumano extends Jogador {
     }
 
     @Override
-    public Resposta responderAposta(NivelAposta nivelAtual) {
-        return ui.lerResposta(this, nivelAtual);
+    public Resposta lerRespostaAposta(NivelAposta nivelAtual) {
+        return ui.lerRespostaAposta(this, nivelAtual);
     }
 
     @Override
-    public boolean pedirAumento(NivelAposta proposto) {
-        return ui.lerPedidoAumento(this, proposto);
+    public boolean pedirTruco(NivelAposta proposto) {
+        return ui.pedirTruco(this, proposto);
     }
 }
