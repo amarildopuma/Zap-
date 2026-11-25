@@ -1,9 +1,7 @@
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Rodada {
-
     private static final int CARTAS_POR_JOGADOR = 3;
 
     private final Variante variante;
@@ -151,13 +149,22 @@ public class Rodada {
 
     private Jogador primeiroAdversario(Jogador jogador) {
         int inicio = mesa.indexOf(jogador);
+        Jogador primeiro = null;
         for (int i = 1; i < mesa.size(); i++) {
             Jogador candidato = mesa.get((inicio + i) % mesa.size());
             if (timeDe(candidato) != timeDe(jogador)) {
-                return candidato;
+                if (candidato.ehHumano()) {
+                    return candidato;
+                }
+                if (primeiro == null) {
+                    primeiro = candidato;
+                }
             }
         }
-        throw new IllegalStateException("Não há adversários para " + jogador.getNome() + ".");
+        if (primeiro == null) {
+            throw new IllegalStateException("Não há adversários para " + jogador.getNome() + ".");
+        }
+        return primeiro;
     }
 
     private Time timeDe(Jogador jogador) {

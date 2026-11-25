@@ -20,4 +20,9 @@ public class JogadorHumano extends Jogador {
     public boolean pedirTruco(NivelAposta proposto) {
         return ui.pedirTruco(this, proposto);
     }
+
+    @Override
+    public boolean ehHumano() {
+        return true;
+    }
 }

@@ -1,9 +1,12 @@
 import java.util.List;
 import java.util.Scanner;
 
-public class InterfaceTerminal implements InterfaceJogo{
+public class InterfaceTerminal implements InterfaceJogo {
+    private final Scanner scanner;
 
-    private final Scanner scanner = new Scanner(System.in);
+    public InterfaceTerminal(Scanner scanner) {
+        this.scanner = scanner;
+    }
 
     public String perguntar(String pergunta) {
         System.out.print(pergunta);
@@ -31,12 +34,15 @@ public class InterfaceTerminal implements InterfaceJogo{
                     return mao.get(numeroCarta - 1);
                 }
             }
-            catch(NumberFormatException e){
-                
+            System.out.print("Escolha a carta: ");
+            Integer escolha = lerNumero();
+            if (escolha != null && escolha >= 1 && escolha <= mao.size()) {
+                return mao.get(escolha - 1);
             }
-            System.out.println("Opção inválida!");
+            System.out.println("Opção inválida.");
         }
     }
+
     @Override
     public Resposta lerRespostaAposta(Jogador jogador, NivelAposta nivelAtual) {
         mostrarMao(jogador);
@@ -53,14 +59,21 @@ public class InterfaceTerminal implements InterfaceJogo{
             if (entrada.equals("a")) {
                 return Resposta.ACEITAR;
             }
-            else if (entrada.equals("c")){
-                return Resposta.CORRER;
+            System.out.println("  3) Correr");
+            System.out.print("Sua resposta: ");
+            Integer escolha = lerNumero();
+            if (escolha != null) {
+                if (escolha == 1) {
+                    return Resposta.ACEITAR;
+                }
+                if (escolha == 2 && nivelAtual.temProximo()) {
+                    return Resposta.AUMENTAR;
+                }
+                if (escolha == 3) {
+                    return Resposta.CORRER;
+                }
             }
-            else if (entrada.equals("r") && nivelAtual.temProximo()){
-                return Resposta.AUMENTAR;
-            }
-
-            System.out.println("Opção inválida!");
+            System.out.println("Opção inválida.");
         }
     }
 
