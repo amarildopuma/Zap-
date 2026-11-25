@@ -33,4 +33,8 @@ public abstract class Jogador {
     public abstract Carta escolherCarta(Variante variante);
     public abstract Resposta responderAposta(NivelAposta nivelAtual);
     public abstract boolean pedirAumento(NivelAposta proposto);
+
+    public boolean ehHumano(){
+        return false;
+    }
 }
