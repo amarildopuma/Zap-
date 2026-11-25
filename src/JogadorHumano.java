@@ -20,4 +20,9 @@ public class JogadorHumano extends Jogador {
     public boolean pedirAumento(NivelAposta proposto) {
         return ui.lerPedidoAumento(this, proposto);
     }
+
+    @Override
+    public boolean ehHumano() {
+        return true;
+    }
 }
