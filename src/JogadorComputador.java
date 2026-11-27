@@ -34,7 +34,7 @@ public class JogadorComputador extends Jogador {
     }
 
     @Override
-    public Resposta responderAposta(NivelAposta nivelAtual) {
+    public Resposta lerRespostaAposta(NivelAposta nivelAtual) {
         if (getMao().isEmpty()) {
             return Resposta.ACEITAR;
         }
@@ -51,7 +51,7 @@ public class JogadorComputador extends Jogador {
     }
 
     @Override
-    public boolean pedirAumento(NivelAposta proximoNivel) {
+    public boolean pedirTruco(NivelAposta proximoNivel) {
         int fortes = 0; 
         for (Carta carta : getMao()) {
             if (variante.getForca(carta) >= 9) {
@@ -63,5 +63,14 @@ public class JogadorComputador extends Jogador {
             chance /= 2;
         }
         return random.nextDouble() < chance;
+    }
+
+    private double calcularMediaForca() {
+        List<Carta> mao = getMao();
+        int soma = 0;
+        for (Carta carta : mao) {
+            soma += variante.getForca(carta);
+        }
+        return (double) soma / mao.size();
     }
 }

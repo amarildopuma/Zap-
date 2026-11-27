@@ -38,7 +38,7 @@ public class Rodada {
 
             for (int i = 0; i < mesa.size(); i++) {
                 Jogador jogador = mesa.get((lider + i) % mesa.size());
-                if (tentarAumento(jogador)) {
+                if (pedirTruco(jogador)) {
                     return;
                 }
                 jogarCartaDe(jogador, vaza);
@@ -80,8 +80,11 @@ public class Rodada {
         while (true) {
             Carta carta = jogador.escolherCarta(variante);
             try {
-                jogador.jogarCarta(carta);
-                vaza.adicionar(jogador, carta);
+                if (!jogador.temCarta(carta)) {
+                    throw new JogadaInvalidaException("A carta escolhida não está na mão do jogador.");
+                }
+                vaza.adicionar(jogador, carta); 
+                jogador.jogarCarta(carta);        
                 ui.mostrarMensagem(jogador.getNome() + " jogou " + carta);
                 return;
             } catch (JogadaInvalidaException e) {
@@ -90,12 +93,12 @@ public class Rodada {
         }
     }
 
-    private boolean tentarAumento(Jogador jogador) {
+    private boolean pedirTruco(Jogador jogador) {
         Time time = timeDe(jogador);
         if (!nivelAtual.temProximo() || time == ultimoAumento) {
             return false;
         }
-        if (!jogador.pedirAumento(nivelAtual.proximo())) {
+        if (!jogador.pedirTruco(nivelAtual.proximo())) {
             return false;
         }
         return resolverAposta(jogador);
@@ -109,7 +112,7 @@ public class Rodada {
             Jogador adversario = primeiroAdversario(quemPede);
             ui.mostrarMensagem(quemPede.getNome() + " pediu " + proposto + "!");
 
-            Resposta resposta = responder(adversario, proposto);
+            Resposta resposta = responder(quemPede, proposto);
 
             if (resposta == Resposta.CORRER) {
                 ui.mostrarMensagem(adversario.getNome() + " correu.");
@@ -131,7 +134,7 @@ public class Rodada {
 
     private Resposta responder(Jogador jogador, NivelAposta proposto) {
         while (true) {
-            Resposta resposta = jogador.responderAposta(proposto);
+            Resposta resposta = jogador.lerRespostaAposta(proposto);
             try {
                 validarResposta(resposta, proposto);
                 return resposta;

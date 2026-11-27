@@ -36,4 +36,13 @@ public abstract class Jogador {
     public boolean pedirTruco(NivelAposta proximoNivel) {
         return false;
     }
+
+    public boolean ehHumano() {
+        return false;
+    }
+
+    public boolean temCarta(Carta carta) {
+        return this.mao.contains(carta);
+    }
+
 }

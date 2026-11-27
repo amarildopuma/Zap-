@@ -21,25 +21,22 @@ public class InterfaceTerminal implements InterfaceJogo {
     
     }
 
-    @Override 
-    public Carta lerCarta(Jogador jogador){
+    @Override
+    public Carta lerCarta(Jogador jogador) {
         List<Carta> mao = jogador.getMao();
         mostrarMao(jogador);
-        
-        while(true){
-            String resposta = perguntar("Insira a carta a ser jogada: ").toLowerCase();
-            try{
+
+        while (true) {
+            String resposta = perguntar("Insira a carta a ser jogada: ");
+            try {
                 int numeroCarta = Integer.parseInt(resposta);
-                if(numeroCarta >= 1 && numeroCarta <= mao.size()){
+                if (numeroCarta >= 1 && numeroCarta <= mao.size()) {
                     return mao.get(numeroCarta - 1);
                 }
+            } catch (NumberFormatException e) {
+                // não era número: cai na mensagem abaixo
             }
-            System.out.print("Escolha a carta: ");
-            Integer escolha = lerNumero();
-            if (escolha != null && escolha >= 1 && escolha <= mao.size()) {
-                return mao.get(escolha - 1);
-            }
-            System.out.println("Opção inválida.");
+            System.out.println("Opção inválida!");
         }
     }
 
@@ -48,32 +45,21 @@ public class InterfaceTerminal implements InterfaceJogo {
         mostrarMao(jogador);
         System.out.println("[A] - Aceitar");
         System.out.println("[C] - Correr");
-
-        if(nivelAtual.temProximo()){
+        if (nivelAtual.temProximo()) {
             System.out.println("[R] - Aumentar para " + nivelAtual.proximo());
         }
 
-        while(true){
+        while (true) {
             String entrada = perguntar("Sua resposta: ").toLowerCase();
 
             if (entrada.equals("a")) {
                 return Resposta.ACEITAR;
+            } else if (entrada.equals("c")) {
+                return Resposta.CORRER;
+            } else if (entrada.equals("r") && nivelAtual.temProximo()) {
+                return Resposta.AUMENTAR;
             }
-            System.out.println("  3) Correr");
-            System.out.print("Sua resposta: ");
-            Integer escolha = lerNumero();
-            if (escolha != null) {
-                if (escolha == 1) {
-                    return Resposta.ACEITAR;
-                }
-                if (escolha == 2 && nivelAtual.temProximo()) {
-                    return Resposta.AUMENTAR;
-                }
-                if (escolha == 3) {
-                    return Resposta.CORRER;
-                }
-            }
-            System.out.println("Opção inválida.");
+            System.out.println("Opção inválida!");
         }
     }
 
@@ -86,26 +72,22 @@ public class InterfaceTerminal implements InterfaceJogo {
     public boolean pedirTruco(Jogador jogador, NivelAposta proposta) {
         mostrarMao(jogador);
 
-        if(!proposta.temProximo()){
-            return false;
-        }
 
-        int proxTruco = Integer.parseInt(proposta.proximo());
         while(true){
-            if (proposta.proximo() != 6) {
-            System.out.println("Deseja trucar? ");
+            if (proposta == NivelAposta.TRUCO) {
+                System.out.println("Deseja trucar?");
             } else {
-                System.out.println("Pedir " + proposta.proximo());
+                System.out.println("Deseja pedir " + proposta + "?");
             }
             System.out.println("[S] - Sim");
             System.out.println("[N] - Não");
             String entrada = perguntar("Sua resposta: ").toLowerCase();
 
             if (entrada.equals("s")) {
-                return entrada.equals("s");
+                return true;
             }
             else if (entrada.equals("n")){
-                return entrada.equals("n");
+                return false;
             }
 
             System.out.println("Opção inválida!");

@@ -39,10 +39,10 @@ public class Menu {
 
     private void exibirOpcoes() {
         System.out.println();
-        System.out.println("1) Jogar");
-        System.out.println("2) Regras");
-        System.out.println("0) Sair");
-        System.out.print("Escolha: ");
+        System.out.println("[1] -  Jogar");
+        System.out.println("[2] - Regras");
+        System.out.println("[0] - Sair");
+        System.out.print("Escolha uma opção: ");
     }
 
     private void jogar() {
@@ -68,7 +68,7 @@ public class Menu {
             for (int i = 0; i < modos.length; i++) {
                 System.out.println((i + 1) + ") " + modos[i].getDescricao());
             }
-            System.out.println("0) Voltar");
+            System.out.println("[0] - Voltar");
             System.out.print("Modo de jogo: ");
 
             String entrada = scanner.nextLine().trim();
