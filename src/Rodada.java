@@ -112,7 +112,7 @@ public class Rodada {
             Jogador adversario = primeiroAdversario(quemPede);
             ui.mostrarMensagem(quemPede.getNome() + " pediu " + proposto + "!");
 
-            Resposta resposta = responder(quemPede, proposto);
+            Resposta resposta = responder(adversario, proposto);
 
             if (resposta == Resposta.CORRER) {
                 ui.mostrarMensagem(adversario.getNome() + " correu.");

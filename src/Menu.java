@@ -51,58 +51,96 @@ public class Menu {
             return;
         }
 
-        System.out.print("Seu nome: ");
-        String nome = scanner.nextLine().trim();
-        if (nome.isEmpty()) {
-            nome = "Você";
+        Boolean contraBot = escolherContraBot();
+        if (contraBot == null) {
+            return;
         }
 
-        Partida partida = criarPartida(modo, nome);
+        Partida partida = criarPartida(modo, contraBot);
         partida.jogar();
     }
 
     private ModoJogo escolherModo() {
         ModoJogo[] modos = ModoJogo.values();
+        String[] textos = new String[modos.length];
+        for (int i = 0; i < modos.length; i++) {
+            textos[i] = modos[i].getDescricao();
+        }
+        int indice = escolherOpcao("Modo de jogo: ", textos);
+        return indice < 0 ? null : modos[indice];
+    }
+
+    // true = contra o computador, false = contra outros jogadores, null = voltar
+    private Boolean escolherContraBot() {
+        String[] textos = {
+                "Jogadores contra jogadores (todos humanos)",
+                "Jogadores contra o computador (bots)"
+        };
+        int indice = escolherOpcao("Contra quem quer jogar? ", textos);
+        if (indice < 0) {
+            return null;
+        }
+        return indice == 1;
+    }
+
+    // Mostra as opções numeradas e devolve o índice escolhido (ou -1 se voltar)
+    private int escolherOpcao(String pergunta, String[] textos) {
         while (true) {
             System.out.println();
-            for (int i = 0; i < modos.length; i++) {
-                System.out.println((i + 1) + ") " + modos[i].getDescricao());
+            for (int i = 0; i < textos.length; i++) {
+                System.out.println((i + 1) + ") " + textos[i]);
             }
             System.out.println("[0] - Voltar");
-            System.out.print("Modo de jogo: ");
+            System.out.print(pergunta);
 
             String entrada = scanner.nextLine().trim();
             if (entrada.equals("0")) {
-                return null;
+                return -1;
             }
             try {
                 int indice = Integer.parseInt(entrada);
-                if (indice >= 1 && indice <= modos.length) {
-                    return modos[indice - 1];
+                if (indice >= 1 && indice <= textos.length) {
+                    return indice - 1;
                 }
             } catch (NumberFormatException e) {
+                // cai na mensagem abaixo
             }
             System.out.println("Opção inválida.");
         }
     }
 
-    private Partida criarPartida(ModoJogo modo, String nome) {
+    private String lerNome(String padrao) {
+        System.out.print("Nome de " + padrao + ": ");
+        String nome = scanner.nextLine().trim();
+        return nome.isEmpty() ? padrao : nome;
+    }
+
+    private Partida criarPartida(ModoJogo modo, boolean contraBot) {
         Variante variante = modo.criarVariante();
         int jogadoresPorTime = variante.getJogadoresPorTime();
 
         List<Jogador> jogadoresTime1 = new ArrayList<>();
         List<Jogador> jogadoresTime2 = new ArrayList<>();
 
-        jogadoresTime1.add(new JogadorHumano(nome, ui));
-        for (int i = 1; i < jogadoresPorTime; i++) {
-            jogadoresTime1.add(new JogadorComputador("Parceiro " + i, variante));
-        }
+        System.out.println();
+        System.out.println("--- Time 1 ---");
         for (int i = 1; i <= jogadoresPorTime; i++) {
-            jogadoresTime2.add(new JogadorComputador("Adversário " + i, variante));
+            jogadoresTime1.add(new JogadorHumano(lerNome("Jogador " + i), ui));
         }
 
-        Time time1 = new Time("Seu time", jogadoresTime1);
-        Time time2 = new Time("Time adversário", jogadoresTime2);
+        if (!contraBot) {
+            System.out.println("--- Time 2 ---");
+            for (int i = 1; i <= jogadoresPorTime; i++) {
+                jogadoresTime2.add(new JogadorHumano(lerNome("Jogador " + (jogadoresPorTime + i)), ui));
+            }
+        } else {
+            for (int i = 1; i <= jogadoresPorTime; i++) {
+                jogadoresTime2.add(new JogadorComputador("Bot " + i, variante));
+            }
+        }
+
+        Time time1 = new Time("Time 1", jogadoresTime1);
+        Time time2 = new Time(contraBot ? "Computador" : "Time 2", jogadoresTime2);
 
         List<Jogador> mesa = new ArrayList<>();
         for (int i = 0; i < jogadoresPorTime; i++) {
