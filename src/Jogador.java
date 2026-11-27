@@ -41,6 +41,8 @@ public abstract class Jogador {
         return false;
     }
 
+    public abstract boolean irMaoDeDez(List<Jogador> time);
+
     public boolean ehHumano() {
         return false;
     }

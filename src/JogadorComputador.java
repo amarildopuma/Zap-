@@ -65,6 +65,11 @@ public class JogadorComputador extends Jogador {
         return random.nextDouble() < chance;
     }
 
+    @Override
+    public boolean irMaoDeDez(List<Jogador> time) {
+        return false;
+    }
+
     private double calcularMediaForca() {
         List<Carta> mao = getMao();
         int soma = 0;

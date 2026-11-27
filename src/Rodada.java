@@ -128,7 +128,7 @@ public class Rodada {
         Time outro = time1Dez ? time2 : time1;
         List<Jogador> jogadores = timeDez.getJogadores();
 
-        Jogador decisor = jogadores.get(0);
+        Jogador decisor = jogadores.getFirst();
         for (Jogador j : jogadores) {
             if (j.ehHumano()) {
                 decisor = j;
