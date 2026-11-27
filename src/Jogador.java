@@ -16,6 +16,10 @@ public abstract class Jogador {
             this.mao.addAll(cartasRecebidas);
         }
     }
+    public boolean temCarta(Carta carta) {
+        return this.mao.contains(carta);
+    }
+
     public void jogarCarta(Carta carta) throws JogadaInvalidaException {
         if (!this.mao.contains(carta)) {
             throw new JogadaInvalidaException("A carta escolhida não está na mão do jogador.");
@@ -37,17 +41,8 @@ public abstract class Jogador {
         return false;
     }
 
-    // Decide se o time vai à mão de dez. Por padrão vai.
-    public boolean irMaoDeDez(List<Jogador> time) {
-        return true;
-    }
-
     public boolean ehHumano() {
         return false;
-    }
-
-    public boolean temCarta(Carta carta) {
-        return this.mao.contains(carta);
     }
 
 }

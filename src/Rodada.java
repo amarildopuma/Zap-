@@ -31,6 +31,7 @@ public class Rodada {
 
     public void jogar() {
         distribuirCartas();
+        ui.iniciarRodada();
 
         if (verificarMaoDeDez()) {
             return;
@@ -45,6 +46,7 @@ public class Rodada {
 
             for (int i = 0; i < mesa.size(); i++) {
                 Jogador jogador = mesa.get((lider + i) % mesa.size());
+                ui.vezDe(jogador);
                 if (pedirTruco(jogador)) {
                     return;
                 }
@@ -60,6 +62,7 @@ public class Rodada {
                 lider = mesa.indexOf(ganhador);
                 ui.mostrarMensagem(ganhador.getNome() + " ganhou a rodada.");
             }
+            ui.fimDaVaza();
             decisao = decidirVencedor(resultados);
         }
 
@@ -94,6 +97,7 @@ public class Rodada {
                 vaza.adicionar(jogador, carta);
                 jogador.jogarCarta(carta);
                 ui.mostrarMensagem(jogador.getNome() + " jogou " + carta);
+                ui.cartaJogada(jogador, carta);
                 return;
             } catch (JogadaInvalidaException e) {
                 ui.mostrarMensagem(e.getMessage());

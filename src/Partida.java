@@ -21,6 +21,7 @@ public class Partida {
     }
 
     public Time jogar() {
+        ui.iniciarPartida(mesa, time1, time2);
         int numeroRodada = 1;
 
         while (!terminou()) {
