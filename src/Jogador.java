@@ -37,6 +37,11 @@ public abstract class Jogador {
         return false;
     }
 
+    // Decide se o time vai à mão de dez. Por padrão vai.
+    public boolean irMaoDeDez(List<Jogador> time) {
+        return true;
+    }
+
     public boolean ehHumano() {
         return false;
     }

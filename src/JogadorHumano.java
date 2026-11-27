@@ -22,6 +22,11 @@ public class JogadorHumano extends Jogador {
     }
 
     @Override
+    public boolean irMaoDeDez(java.util.List<Jogador> time) {
+        return ui.perguntarMaoDeDez(this, time);
+    }
+
+    @Override
     public boolean ehHumano() {
         return true;
     }

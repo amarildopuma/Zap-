@@ -52,7 +52,7 @@ public class JogadorComputador extends Jogador {
 
     @Override
     public boolean pedirTruco(NivelAposta proximoNivel) {
-        int fortes = 0; 
+        int fortes = 0;
         for (Carta carta : getMao()) {
             if (variante.getForca(carta) >= 9) {
                 fortes++;
@@ -63,6 +63,19 @@ public class JogadorComputador extends Jogador {
             chance /= 2;
         }
         return random.nextDouble() < chance;
+    }
+
+    @Override
+    public boolean irMaoDeDez(List<Jogador> time) {
+        int soma = 0;
+        int total = 0;
+        for (Jogador j : time) {
+            for (Carta carta : j.getMao()) {
+                soma += variante.getForca(carta);
+                total++;
+            }
+        }
+        return total == 0 || (double) soma / total >= LIMITE_ACEITAR;
     }
 
     private double calcularMediaForca() {

@@ -3,6 +3,8 @@ import java.util.List;
 
 public class Rodada {
     private static final int CARTAS_POR_JOGADOR = 3;
+    private static final int PONTOS_MAO_DE_DEZ = 10;
+    private static final int PONTOS_FUGA_MAO_DE_DEZ = 2;
 
     private final Variante variante;
     private final List<Jogador> mesa;
@@ -14,6 +16,7 @@ public class Rodada {
     private NivelAposta nivelAtual;
     private Time ultimoAumento;
     private Time vencedor;
+    private boolean semAposta;
     private int pontosGanhos;
 
     public Rodada(Variante variante, List<Jogador> mesa, Time time1, Time time2, InterfaceJogo ui, int indiceMao) {
@@ -28,6 +31,10 @@ public class Rodada {
 
     public void jogar() {
         distribuirCartas();
+
+        if (verificarMaoDeDez()) {
+            return;
+        }
 
         List<Time> resultados = new ArrayList<>();
         int lider = indiceMao;
@@ -47,15 +54,16 @@ public class Rodada {
             Jogador ganhador = vaza.getVencedor(variante, time1);
             if (ganhador == null) {
                 resultados.add(null);
-                ui.mostrarMensagem("A vaza empatou.");
+                ui.mostrarMensagem("A rodada empatou.");
             } else {
                 resultados.add(timeDe(ganhador));
                 lider = mesa.indexOf(ganhador);
-                ui.mostrarMensagem(ganhador.getNome() + " ganhou a vaza.");
+                ui.mostrarMensagem(ganhador.getNome() + " ganhou a rodada.");
             }
             decisao = decidirVencedor(resultados);
         }
 
+        ui.definirMaoCega(false);
         vencedor = decisao;
         pontosGanhos = nivelAtual.getPontos();
     }
@@ -83,8 +91,8 @@ public class Rodada {
                 if (!jogador.temCarta(carta)) {
                     throw new JogadaInvalidaException("A carta escolhida não está na mão do jogador.");
                 }
-                vaza.adicionar(jogador, carta); 
-                jogador.jogarCarta(carta);        
+                vaza.adicionar(jogador, carta);
+                jogador.jogarCarta(carta);
                 ui.mostrarMensagem(jogador.getNome() + " jogou " + carta);
                 return;
             } catch (JogadaInvalidaException e) {
@@ -93,8 +101,53 @@ public class Rodada {
         }
     }
 
+    // Retorna true se a rodada já acabou (time correu da mão de dez)
+    private boolean verificarMaoDeDez() {
+        boolean time1Dez = time1.getPontos() == PONTOS_MAO_DE_DEZ;
+        boolean time2Dez = time2.getPontos() == PONTOS_MAO_DE_DEZ;
+
+        if (!time1Dez && !time2Dez) {
+            return false;
+        }
+
+        // Rodada já vale 4 e ninguém pode pedir truco
+        nivelAtual = NivelAposta.TRUCO;
+        semAposta = true;
+
+        if (time1Dez && time2Dez) {
+            ui.mostrarMensagem("Mão de ferro! Os dois times têm 10 pontos: rodada valendo 4, sem ver as cartas e sem truco.");
+            ui.definirMaoCega(true);
+            return false;
+        }
+
+        Time timeDez = time1Dez ? time1 : time2;
+        Time outro = time1Dez ? time2 : time1;
+        List<Jogador> jogadores = timeDez.getJogadores();
+
+        Jogador decisor = jogadores.get(0);
+        for (Jogador j : jogadores) {
+            if (j.ehHumano()) {
+                decisor = j;
+                break;
+            }
+        }
+
+        if (decisor.irMaoDeDez(jogadores)) {
+            ui.mostrarMensagem(timeDez.getNome() + " foi à mão de dez! A rodada vale 4 pontos.");
+            return false;
+        }
+
+        ui.mostrarMensagem(timeDez.getNome() + " correu da mão de dez.");
+        vencedor = outro;
+        pontosGanhos = PONTOS_FUGA_MAO_DE_DEZ;
+        return true;
+    }
+
     private boolean pedirTruco(Jogador jogador) {
         Time time = timeDe(jogador);
+        if (semAposta) {
+            return false;
+        }
         if (!nivelAtual.temProximo() || time == ultimoAumento) {
             return false;
         }

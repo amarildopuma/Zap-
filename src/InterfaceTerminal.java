@@ -3,6 +3,7 @@ import java.util.Scanner;
 
 public class InterfaceTerminal implements InterfaceJogo {
     private final Scanner scanner;
+    private boolean maoCega = false;
 
     public InterfaceTerminal(Scanner scanner) {
         this.scanner = scanner;
@@ -16,9 +17,13 @@ public class InterfaceTerminal implements InterfaceJogo {
     private void mostrarMao(Jogador jogador) {
         List<Carta> mao = jogador.getMao();
         for (int i = 0; i < mao.size(); i++) {
-            System.out.println("[" + (i + 1) + "] " + mao.get(i));
+            if (maoCega) {
+                System.out.println("[" + (i + 1) + "] (carta escondida)");
+            } else {
+                System.out.println("[" + (i + 1) + "] " + mao.get(i));
+            }
         }
-    
+
     }
 
     @Override
@@ -61,6 +66,36 @@ public class InterfaceTerminal implements InterfaceJogo {
             }
             System.out.println("Opção inválida!");
         }
+    }
+
+    @Override
+    public boolean perguntarMaoDeDez(Jogador jogador, List<Jogador> time) {
+        System.out.println();
+        System.out.println("*** MÃO DE DEZ ***");
+        System.out.println("Cartas do seu time:");
+        for (Jogador j : time) {
+            System.out.println("  " + j.getNome() + ": " + j.getMao());
+        }
+        System.out.println("Se jogar, a rodada vale 4 pontos e ninguém pode pedir truco.");
+
+        while (true) {
+            System.out.println(jogador.getNome() + ", o time vai à mão?");
+            System.out.println("[S] - Sim, jogar");
+            System.out.println("[N] - Não, correr");
+            String entrada = perguntar("Sua resposta: ").toLowerCase();
+
+            if (entrada.equals("s")) {
+                return true;
+            } else if (entrada.equals("n")) {
+                return false;
+            }
+            System.out.println("Opção inválida!");
+        }
+    }
+
+    @Override
+    public void definirMaoCega(boolean cega) {
+        this.maoCega = cega;
     }
 
     @Override
