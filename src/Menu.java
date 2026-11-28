@@ -70,7 +70,6 @@ public class Menu {
         return indice < 0 ? null : modos[indice];
     }
 
-    // true = contra o computador, false = contra outros jogadores, null = voltar
     private Boolean escolherContraBot() {
         String[] textos = {
                 "Jogadores contra jogadores (todos humanos)",
@@ -83,7 +82,6 @@ public class Menu {
         return indice == 1;
     }
 
-    // Mostra as opções numeradas e devolve o índice escolhido (ou -1 se voltar)
     private int escolherOpcao(String pergunta, String[] textos) {
         while (true) {
             System.out.println();
@@ -103,7 +101,6 @@ public class Menu {
                     return indice - 1;
                 }
             } catch (NumberFormatException e) {
-                // cai na mensagem abaixo
             }
             System.out.println("Opção inválida.");
         }

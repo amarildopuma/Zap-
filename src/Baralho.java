@@ -24,6 +24,10 @@ public class Baralho {
         }
     }
 
+    public List<Carta> getCartas(){
+        return new ArrayList<>(cartas);
+    }
+
     public void embaralhar(){
         Collections.shuffle(cartas);
     }

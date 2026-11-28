@@ -16,6 +16,10 @@ public class Vaza {
         jogadas.put(j, c);
     }
 
+    public Map<Jogador, Carta> getJogadas() {
+        return new LinkedHashMap<>(jogadas);
+    }
+
     public Jogador getVencedor(Variante v, Time referencia) {
         int maiorForca = -1;
         for (Carta c : jogadas.values()) {

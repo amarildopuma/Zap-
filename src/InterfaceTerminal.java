@@ -39,7 +39,6 @@ public class InterfaceTerminal implements InterfaceJogo {
                     return mao.get(numeroCarta - 1);
                 }
             } catch (NumberFormatException e) {
-                // não era número: cai na mensagem abaixo
             }
             System.out.println("Opção inválida!");
         }

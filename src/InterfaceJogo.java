@@ -8,7 +8,6 @@ public interface InterfaceJogo {
     void definirMaoCega(boolean cega);
     void mostrarMensagem(String mensagem);
 
-    // Eventos opcionais: o terminal ignora, a interface gráfica usa para redesenhar a mesa.
     default void iniciarPartida(List<Jogador> mesa, Time time1, Time time2) {}
     default void iniciarRodada() {}
     default void vezDe(Jogador jogador) {}

@@ -47,4 +47,7 @@ public abstract class Jogador {
         return false;
     }
 
+    public void observar(SituacaoRodada situacao) {
+    }
+
 }

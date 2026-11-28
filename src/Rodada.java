@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Rodada {
     private static final int CARTAS_POR_JOGADOR = 3;
@@ -12,7 +13,11 @@ public class Rodada {
     private final Time time2;
     private final InterfaceJogo ui;
     private final int indiceMao;
+    private final List<Time> resultados = new ArrayList<>();
+    private final List<Carta> jogadasAnteriores = new ArrayList<>();
 
+    private Vaza vazaAtual = new Vaza();
+    private int lider;
     private NivelAposta nivelAtual;
     private Time ultimoAumento;
     private Time vencedor;
@@ -26,6 +31,7 @@ public class Rodada {
         this.time2 = time2;
         this.ui = ui;
         this.indiceMao = indiceMao;
+        this.lider = indiceMao;
         this.nivelAtual = NivelAposta.SEM_APOSTA;
     }
 
@@ -37,12 +43,10 @@ public class Rodada {
             return;
         }
 
-        List<Time> resultados = new ArrayList<>();
-        int lider = indiceMao;
         Time decisao = null;
 
         while (decisao == null) {
-            Vaza vaza = new Vaza();
+            vazaAtual = new Vaza();
 
             for (int i = 0; i < mesa.size(); i++) {
                 Jogador jogador = mesa.get((lider + i) % mesa.size());
@@ -50,10 +54,10 @@ public class Rodada {
                 if (pedirTruco(jogador)) {
                     return;
                 }
-                jogarCartaDe(jogador, vaza);
+                jogarCartaDe(jogador, vazaAtual);
             }
 
-            Jogador ganhador = vaza.getVencedor(variante, time1);
+            Jogador ganhador = vazaAtual.getVencedor(variante, time1);
             if (ganhador == null) {
                 resultados.add(null);
                 ui.mostrarMensagem("A rodada empatou.");
@@ -62,6 +66,7 @@ public class Rodada {
                 lider = mesa.indexOf(ganhador);
                 ui.mostrarMensagem(ganhador.getNome() + " ganhou a rodada.");
             }
+            jogadasAnteriores.addAll(vazaAtual.getJogadas().values());
             ui.fimDaVaza();
             decisao = decidirVencedor(resultados);
         }
@@ -89,6 +94,7 @@ public class Rodada {
 
     private void jogarCartaDe(Jogador jogador, Vaza vaza) {
         while (true) {
+            jogador.observar(situacaoPara(jogador));
             Carta carta = jogador.escolherCarta(variante);
             try {
                 if (!jogador.temCarta(carta)) {
@@ -105,7 +111,6 @@ public class Rodada {
         }
     }
 
-    // Retorna true se a rodada já acabou (time correu da mão de dez)
     private boolean verificarMaoDeDez() {
         boolean time1Dez = time1.getPontos() == PONTOS_MAO_DE_DEZ;
         boolean time2Dez = time2.getPontos() == PONTOS_MAO_DE_DEZ;
@@ -114,7 +119,6 @@ public class Rodada {
             return false;
         }
 
-        // Rodada já vale 4 e ninguém pode pedir truco
         nivelAtual = NivelAposta.TRUCO;
         semAposta = true;
 
@@ -136,6 +140,7 @@ public class Rodada {
             }
         }
 
+        decisor.observar(situacaoPara(decisor));
         if (decisor.irMaoDeDez(jogadores)) {
             ui.mostrarMensagem(timeDez.getNome() + " foi à mão de dez! A rodada vale 4 pontos.");
             return false;
@@ -155,6 +160,7 @@ public class Rodada {
         if (!nivelAtual.temProximo() || time == ultimoAumento) {
             return false;
         }
+        jogador.observar(situacaoPara(jogador));
         if (!jogador.pedirTruco(nivelAtual.proximo())) {
             return false;
         }
@@ -191,6 +197,7 @@ public class Rodada {
 
     private Resposta responder(Jogador jogador, NivelAposta proposto) {
         while (true) {
+            jogador.observar(situacaoPara(jogador));
             Resposta resposta = jogador.lerRespostaAposta(proposto);
             try {
                 validarResposta(resposta, proposto);
@@ -225,6 +232,25 @@ public class Rodada {
             throw new IllegalStateException("Não há adversários para " + jogador.getNome() + ".");
         }
         return primeiro;
+    }
+
+    private SituacaoRodada situacaoPara(Jogador jogador) {
+        int assentos = mesa.size();
+        int[] equipe = new int[assentos];
+        Carta[] naMesa = new Carta[assentos];
+        Map<Jogador, Carta> jogadas = vazaAtual.getJogadas();
+        for (int i = 0; i < assentos; i++) {
+            Jogador j = mesa.get(i);
+            equipe[i] = time1.temJogador(j) ? 0 : 1;
+            naMesa[i] = jogadas.get(j);
+        }
+        List<Integer> placarDasVazas = new ArrayList<>();
+        for (Time time : resultados) {
+            placarDasVazas.add(time == null ? -1 : (time == time1 ? 0 : 1));
+        }
+        return new SituacaoRodada(variante, new ArrayList<>(mesa), mesa.indexOf(jogador), equipe, naMesa,
+                lider, indiceMao, placarDasVazas, new ArrayList<>(jogadasAnteriores), nivelAtual,
+                new int[] {time1.getPontos(), time2.getPontos()});
     }
 
     private Time timeDe(Jogador jogador) {
