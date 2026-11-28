@@ -47,6 +47,10 @@ public class Partida {
         return campeao;
     }
 
+    public Time getTime1() {
+        return time1;
+    }
+
     public boolean terminou() {
         return getVencedor() != null;
     }

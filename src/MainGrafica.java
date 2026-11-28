@@ -1,55 +1,72 @@
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainGrafica {
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(MainGrafica::iniciar);
+        SwingUtilities.invokeLater(() -> {
+            InterfaceGrafica ui = new InterfaceGrafica();
+            Thread thread = new Thread(() -> executar(ui), "partida");
+            thread.setDaemon(true);
+            thread.start();
+        });
     }
 
-    private static void iniciar() {
-        ModoJogo[] modos = ModoJogo.values();
-        String[] opcoes = new String[modos.length];
-        for (int i = 0; i < modos.length; i++) {
-            opcoes[i] = modos[i].getDescricao();
+    private static void executar(InterfaceGrafica ui) {
+        ConfiguracaoPartida configuracao = ui.escolherConfiguracao(null);
+        if (configuracao == null) {
+            System.exit(0);
         }
 
-        int escolha = JOptionPane.showOptionDialog(null, "Escolha o modo de jogo:", "Zap! - Truco",
-                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, opcoes, opcoes[0]);
-        if (escolha < 0) {
-            return;
-        }
+        Sequencia sequencia = new Sequencia();
+        while (true) {
+            sequencia.preparar(configuracao);
+            ui.definirSequencia(sequencia.resumoCurto());
 
-        String nome = JOptionPane.showInputDialog(null, "Seu nome:", "Você");
-        if (nome == null) {
-            return;
-        }
-        nome = nome.trim();
-        if (nome.isEmpty()) {
-            nome = "Você";
-        }
+            Partida partida = criarPartida(configuracao, ui);
+            Time campeao = partida.jogar();
+            boolean venceu = campeao == partida.getTime1();
 
-        InterfaceGrafica ui = new InterfaceGrafica();
-        Partida partida = criarPartida(modos[escolha], nome, ui);
+            sequencia.registrar(venceu);
+            ui.definirSequencia(sequencia.resumoCurto());
 
-        // A partida bloqueia esperando cliques, então não pode rodar na thread da janela.
-        Thread thread = new Thread(partida::jogar, "partida");
-        thread.setDaemon(true);
-        thread.start();
+            configuracao = decidirProxima(ui, configuracao, venceu, partida.placar(), sequencia);
+        }
     }
 
-    // Mesma montagem do Menu.criarPartida, só que recebendo a interface por parâmetro.
-    private static Partida criarPartida(ModoJogo modo, String nome, InterfaceJogo ui) {
-        Variante variante = modo.criarVariante();
+    private static ConfiguracaoPartida decidirProxima(InterfaceGrafica ui, ConfiguracaoPartida atual,
+                                                      boolean venceu, String placar, Sequencia sequencia) {
+        while (true) {
+            AcaoFinal acao = ui.fimDePartida(venceu, placar, sequencia.linhaSequencia(), sequencia.linhaGeral());
+            switch (acao) {
+                case JOGAR_NOVAMENTE:
+                    return atual;
+                case MUDAR_FORMA:
+                    ConfiguracaoPartida nova = ui.escolherConfiguracao(atual);
+                    if (nova != null) {
+                        return nova;
+                    }
+                    break;
+                default:
+                    System.exit(0);
+            }
+        }
+    }
+
+    private static Partida criarPartida(ConfiguracaoPartida configuracao, InterfaceJogo ui) {
+        Variante variante = configuracao.modo().criarVariante();
         int jogadoresPorTime = variante.getJogadoresPorTime();
 
         List<Jogador> jogadoresTime1 = new ArrayList<>();
         List<Jogador> jogadoresTime2 = new ArrayList<>();
 
-        jogadoresTime1.add(new JogadorHumano(nome, ui));
+        jogadoresTime1.add(new JogadorHumano(configuracao.nome(), ui));
         for (int i = 1; i < jogadoresPorTime; i++) {
-            jogadoresTime1.add(new JogadorComputador("Parceiro " + i, variante));
+            if (configuracao.forma() == FormaDeJogar.PARCEIRO_HUMANO) {
+                jogadoresTime1.add(new JogadorHumano("Jogador " + (i + 1), ui));
+            } else {
+                jogadoresTime1.add(new JogadorComputador("Parceiro " + i, variante));
+            }
         }
         for (int i = 1; i <= jogadoresPorTime; i++) {
             jogadoresTime2.add(new JogadorComputador("Adversário " + i, variante));
